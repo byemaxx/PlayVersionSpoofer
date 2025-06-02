@@ -9,7 +9,7 @@ Spoofs Google Play Store version to:
 - **Version Code**: 99999999  
 - **Version Name**: "999.999.999"
 
-This bypasses version restrictions that some apps check.
+To stop it from updating itself.
 
 ## 📋 Requirements
 
@@ -20,8 +20,8 @@ This bypasses version restrictions that some apps check.
 ## 🔧 Installation
 
 1. Install APK
-2. Enable in LSPosed manager
-3. check "Google Play Spoofer" in LSPosed
+2. Enable module in LSPosed manager
+3. Check "Google Play Store" as scope
 4. Check activation status in app
 
 ## ⚠️ Disclaimer

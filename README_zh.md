@@ -5,11 +5,11 @@
 
 ## 🚀 功能
 
-伪装 Google Play 商店版本为：
+伪装 Google Play Store版本为：
 - **版本号**: 99999999
 - **版本名**: "999.999.999"
 
-用于绕过某些应用的版本检查限制。
+防止 Google Play Store 更新自身。
 
 ## 📋 使用要求
 
@@ -20,8 +20,8 @@
 ## 🔧 安装方法
 
 1. 安装 APK
-2. 在 LSPosed 管理器中启用
-3. 在 LSPosed 中勾选 "Google Play Spoofer"
+2. 在 LSPosed 管理器中启用模块
+3. 勾选 "Google Play Store" 为作用域
 4. 在应用中检查激活状态
 
 ## ⚠️ 免责声明
