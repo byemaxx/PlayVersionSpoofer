@@ -1,0 +1,38 @@
+name: Building Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '19'
+      - name: Set up cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{ hashFiles('**/buildSrc/**/*.kt') }}
+      - name: Build
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PlayVersionSpoofer-${{ github.sha }}
+          path: app/build/outputs/apk/release/app-release.apk

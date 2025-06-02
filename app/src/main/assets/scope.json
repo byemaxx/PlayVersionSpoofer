@@ -1,0 +1,10 @@
+{
+  "name": "PlaySpoofer",
+  "description": "修改Google Play商店的版本号信息以支持在新设备上安装应用 (仅支持Android 12L/SDK 32及以上)",
+  "packages": [
+    {
+      "name": "com.android.vending",
+      "mode": 0
+    }
+  ]
+}
