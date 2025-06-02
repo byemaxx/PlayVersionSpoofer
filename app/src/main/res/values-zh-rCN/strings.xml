@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PlaySpoofer</string>
+    <string name="status_normal">正常工作中</string>
+    <string name="status_partial">部分功能可用</string>
+    <string name="status_error">可能无法工作</string>
+    <string name="status_entry_activation_y">模块已激活</string>
+    <string name="status_entry_activation_n">模块未激活</string>
+    <string name="status_entry_activation_description">模块的激活状态直接影响其功能。如果模块未被激活，它将完全无法运行。</string>
+    <string name="log_title">Hook 日志</string>
+    <string name="log_clear">清除日志</string>
+    <string name="log_empty">暂无日志</string>
+</resources>

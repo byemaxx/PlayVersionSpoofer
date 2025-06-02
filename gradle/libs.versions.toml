@@ -1,0 +1,30 @@
+[versions]
+app-versionName = "1.1"
+app-versionCode = "2"
+kotlin = "2.1.21"
+agp = "8.10.1"
+compileSdk = "36"
+targetSdk = "36"
+minSdk = "28"
+compose = "2025.05.01"
+lifecycle = "2.9.0"
+activity = "1.10.1"
+xposed-api = "82"
+
+[libraries]
+lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+compose = { module = "androidx.compose:compose-bom", version.ref = "compose" }
+compose-runtime = { module = "androidx.compose.runtime:runtime" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+xposed-api = { module = "de.robv.android.xposed:api", version.ref = "xposed-api" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
