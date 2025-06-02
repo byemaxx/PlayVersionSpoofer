@@ -30,7 +30,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="修改Google Play商店版本号" />
+            android:value="Change Google Play Store App Version" />
         <meta-data
             android:name="xposedminversion"
             android:value="93" />

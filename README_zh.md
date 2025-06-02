@@ -1,4 +1,5 @@
 # PlaySpoofer
+[中文](README_zh.md) | [English](README.md)
 
 一个修改 Google Play 商店版本信息的 Xposed 模块。
 

@@ -6,8 +6,19 @@
     <string name="status_error">May not work</string>
     <string name="status_entry_activation_y">Module activated</string>
     <string name="status_entry_activation_n">Module not activated</string>
-    <string name="status_entry_activation_description">The module\'s activation status directly affects its functionality. If the module isn\'t activated, it won\'t work.</string>
-    <string name="log_title">Hook Logs</string>
+    <string name="status_entry_activation_description">The module\'s activation status directly affects its functionality. If the module isn\'t activated, it won\'t work.</string>    <string name="log_title">Hook Logs</string>
     <string name="log_clear">Clear Logs</string>
     <string name="log_empty">No logs available</string>
+    
+    <!-- Main Screen -->
+    <string name="app_title">PlayVersionSpoofer</string>
+    <string name="status_activated">✅ Activated</string>
+    <string name="status_not_activated">❌ Not Activated</string>
+    <string name="status_activated_desc">Module is properly activated and ready to use</string>
+    <string name="status_not_activated_desc">Please activate this module in Xposed framework</string>
+    <string name="usage_instructions">Usage Instructions</string>
+    <string name="usage_description">This module dynamically modifies Google Play Store version information to 999.999.999, preventing Play Store from updating itself.</string>
+    <string name="step_1">1. Ensure this module is activated in Xposed framework</string>
+    <string name="step_2">2. Ensure module scope only includes Google Play Store</string>
+    <string name="step_3">3. Restart Google Play Store to take effect</string>
 </resources>
