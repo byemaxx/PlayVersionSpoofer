@@ -48,7 +48,7 @@ fun MainScreen() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "PlaySpoofer",
+                    text = "PlayVersionSpoofer",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -107,7 +107,8 @@ fun MainScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = "本模块会自动修改Google Play商店的版本号信息",
+                    text = "本模块会动修改Google Play Store的版本号信息为999.999.999，" +
+                            "以阻止Play Store更新自身.",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
@@ -119,12 +120,12 @@ fun MainScreen() {
                 )
                 
                 Text(
-                    text = "2. 确保模块作用域仅包含Google Play商店",
+                    text = "2. 确保模块作用域仅包含Google Play Store",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 Text(
-                    text = "3. 重启Google Play商店即可生效",
+                    text = "3. 重启Google Play Store即可生效",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

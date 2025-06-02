@@ -37,6 +37,9 @@
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
+        <meta-data
+            android:name="xposed-scope"
+            android:value="com.android.vending" />
     </application>
 
 </manifest>
