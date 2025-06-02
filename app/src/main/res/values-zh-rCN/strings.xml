@@ -6,8 +6,19 @@
     <string name="status_error">可能无法工作</string>
     <string name="status_entry_activation_y">模块已激活</string>
     <string name="status_entry_activation_n">模块未激活</string>
-    <string name="status_entry_activation_description">模块的激活状态直接影响其功能。如果模块未被激活，它将完全无法运行。</string>
-    <string name="log_title">Hook 日志</string>
+    <string name="status_entry_activation_description">模块的激活状态直接影响其功能。如果模块未被激活，它将完全无法运行。</string>    <string name="log_title">Hook 日志</string>
     <string name="log_clear">清除日志</string>
     <string name="log_empty">暂无日志</string>
+    
+    <!-- Main Screen -->
+    <string name="app_title">PlayVersionSpoofer</string>
+    <string name="status_activated">✅ 已激活</string>
+    <string name="status_not_activated">❌ 未激活</string>
+    <string name="status_activated_desc">模块已正常激活，可以开始使用</string>
+    <string name="status_not_activated_desc">请在Xposed框架中激活此模块</string>
+    <string name="usage_instructions">使用说明</string>
+    <string name="usage_description">本模块会动态修改Google Play Store的版本号信息为999.999.999，以阻止Play Store更新自身。</string>
+    <string name="step_1">1. 确保在Xposed框架中激活此模块</string>
+    <string name="step_2">2. 确保模块作用域仅包含Google Play Store</string>
+    <string name="step_3">3. 重启Google Play Store即可生效</string>
 </resources>

@@ -8,8 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mymod.playspoofer.R
 import com.mymod.playspoofer.ui.theme.PlaySpooferTheme
 import com.mymod.playspoofer.xposed.statusIsModuleActivated
 
@@ -46,9 +49,8 @@ fun MainScreen() {
         ) {
             Column(
                 modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "PlayVersionSpoofer",
+            ) {                Text(
+                    text = stringResource(R.string.app_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -71,9 +73,8 @@ fun MainScreen() {
                             }
                         ),
                         modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Text(
-                            text = if (isActivated) "✅ 已激活" else "❌ 未激活",
+                    ) {                        Text(
+                            text = if (isActivated) stringResource(R.string.status_activated) else stringResource(R.string.status_not_activated),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = if (isActivated) {
@@ -83,12 +84,11 @@ fun MainScreen() {
                             }
                         )
                     }
-                    
-                    Text(
+                      Text(
                         text = if (isActivated) {
-                            "模块已正常激活，可以开始使用"
+                            stringResource(R.string.status_activated_desc)
                         } else {
-                            "请在Xposed框架中激活此模块"
+                            stringResource(R.string.status_not_activated_desc)
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -96,36 +96,34 @@ fun MainScreen() {
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // 使用说明
+                  // 使用说明
                 Text(
-                    text = "使用说明",
+                    text = stringResource(R.string.usage_instructions),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = "本模块会动修改Google Play Store的版本号信息为999.999.999，" +
-                            "以阻止Play Store更新自身.",
+                  Text(
+                    text = stringResource(R.string.usage_description),
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                    text = "1. 确保在Xposed框架中激活此模块",
+                  Text(
+                    text = stringResource(R.string.step_1),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
                 Text(
-                    text = "2. 确保模块作用域仅包含Google Play Store",
+                    text = stringResource(R.string.step_2),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 Text(
-                    text = "3. 重启Google Play Store即可生效",
+                    text = stringResource(R.string.step_3),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

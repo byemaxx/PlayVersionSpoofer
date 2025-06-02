@@ -1,4 +1,5 @@
 # PlaySpoofer
+[中文](README_zh.md) | [English](README.md)
 
 An Xposed module that modifies Google Play Store version information.
 
