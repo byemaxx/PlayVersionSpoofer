@@ -7,7 +7,7 @@ compileSdk = "36"
 targetSdk = "36"
 minSdk = "28"
 compose = "2025.05.01"
-lifecycle = "2.9.0"
+lifecycle = "2.9.1"
 activity = "1.10.1"
 xposed-api = "82"
 
