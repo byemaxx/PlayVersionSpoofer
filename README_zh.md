@@ -3,13 +3,29 @@
 
 一个修改 Google Play 商店版本信息的 Xposed 模块。
 
-## 🚀 功能
+## 🚀 功能特性
 
-伪装 Google Play Store版本为：
+本模块能够伪装 Google Play 商店的版本信息：
 - **版本号**: 99999999
 - **版本名**: "999.999.999"
 
-防止 Google Play Store 更新自身。
+从而阻止 Google Play 商店自动更新。
+
+## 🔍 如何验证 PlaySpoofer 是否正常工作
+
+1. 打开 Google Play 商店
+2. 点击右上角的个人资料图标
+3. 从菜单中选择"设置"
+4. 向下滚动找到"关于"部分
+5. 验证版本号和版本名是否与伪装值匹配
+
+<p align="center">
+  <img src="imgs/img1.jpg" width="45%" alt="Google Play 设置" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="imgs/img2.jpg" width="45%" alt="版本信息" />
+</p>
+
+> **📝 注意**: 版本伪装仅影响 Google Play 商店应用内显示的版本信息。如果您从外部来源检查版本（如设备设置 > 应用），仍会显示原始值。
 
 ## 📋 使用要求
 
@@ -19,10 +35,10 @@
 
 ## 🔧 安装方法
 
-1. 安装 APK
-2. 在 LSPosed 管理器中启用模块
-3. 勾选 "Google Play Store" 为作用域
-4. 在应用中检查激活状态
+1. 从 [Releases](https://github.com/byemaxx/PlayVersionSpoofer/releases) 下载并安装 APK 文件
+2. 在 LSPosed 管理器中启用该模块
+3. 选择 "Google Play Store" 作为作用域
+4. 打开 PlaySpoofer 应用检查激活状态
 
 ## ⚠️ 免责声明
 
