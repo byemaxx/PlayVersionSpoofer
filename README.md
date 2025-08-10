@@ -3,13 +3,29 @@
 
 An Xposed module that modifies Google Play Store version information.
 
-## 🚀 What it does
+## 🚀 Features
 
-Spoofs Google Play Store version to:
+This module spoofs the Google Play Store version information to:
 - **Version Code**: 99999999  
 - **Version Name**: "999.999.999"
 
-To stop it from updating itself.
+This prevents the Google Play Store from automatically updating itself.
+
+## 🔍 How to Verify PlaySpoofer is Working
+
+1. Open the Google Play Store
+2. Tap the profile icon in the top-right corner
+3. Select "Settings" from the menu
+4. Scroll down to find the "About" section
+5. Verify that the version code and name match the spoofed values
+
+<p align="center">
+  <img src="imgs/img1.jpg" width="45%" alt="Google Play Settings" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="imgs/img2.jpg" width="45%" alt="Version Information" />
+</p>
+
+> **📝 Note**: The version spoofing only affects the version information displayed within the Google Play Store app itself. If you check the version from external sources (such as device Settings > Apps), it will still show the original values.
 
 ## 📋 Requirements
 
@@ -19,10 +35,10 @@ To stop it from updating itself.
 
 ## 🔧 Installation
 
-1. Install APK
-2. Enable module in LSPosed manager
-3. Check "Google Play Store" as scope
-4. Check activation status in app
+1. Download and install the APK file from [Releases](https://github.com/byemaxx/PlayVersionSpoofer/releases)
+2. Enable the module in your LSPosed manager
+3. Select "Google Play Store" as the target scope
+4. Open the PlaySpoofer app to verify activation status
 
 ## ⚠️ Disclaimer
 
