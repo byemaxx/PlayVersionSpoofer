@@ -37,8 +37,9 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleRelease
 
-      - name: Upload artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PlayVersionSpoofer-${{ inputs.ref }}
+          name: PlayVersionSpoofer-${{ inputs.ref }}-apk
           path: app/build/outputs/apk/release/app-release.apk
+          compression-level: 0
