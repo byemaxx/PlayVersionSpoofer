@@ -53,6 +53,8 @@ class Hook : IXposedHookLoadPackage {
         // Hook getPackageInfo(String, int)
         hookGetPackageInfo(
             lpparam,
+            "android.app.ApplicationPackageManager",
+            "getPackageInfo",
             arrayOf<Class<*>>(String::class.java, Int::class.javaPrimitiveType!!)
         )
         // Hook getPackageInfo(VersionedPackage, int)
@@ -60,10 +62,124 @@ class Hook : IXposedHookLoadPackage {
             val versionedClass = Class.forName("android.content.pm.VersionedPackage")
             hookGetPackageInfo(
                 lpparam,
+                "android.app.ApplicationPackageManager",
+                "getPackageInfo",
                 arrayOf<Class<*>>(versionedClass, Int::class.javaPrimitiveType!!)
             )
         } catch (e: ClassNotFoundException) {
             Log.i("VersionedPackage 类不存在，跳过第二个 Hook")
+        }
+
+        val packageInfoFlagsClass = try {
+            Class.forName("android.content.pm.PackageManager\$PackageInfoFlags")
+        } catch (e: ClassNotFoundException) {
+            Log.i("PackageInfoFlags 类不存在，跳过对应 Hook")
+            null
+        }
+
+        if (packageInfoFlagsClass != null) {
+            try {
+                hookGetPackageInfo(
+                    lpparam,
+                    "android.app.ApplicationPackageManager",
+                    "getPackageInfo",
+                    arrayOf<Class<*>>(String::class.java, packageInfoFlagsClass)
+                )
+            } catch (e: Throwable) {
+                Log.i("getPackageInfo(String, PackageInfoFlags) 不存在，跳过 Hook")
+            }
+            try {
+                val versionedClass = Class.forName("android.content.pm.VersionedPackage")
+                try {
+                    hookGetPackageInfo(
+                        lpparam,
+                        "android.app.ApplicationPackageManager",
+                        "getPackageInfo",
+                        arrayOf<Class<*>>(versionedClass, packageInfoFlagsClass)
+                    )
+                } catch (e: Throwable) {
+                    Log.i("getPackageInfo(VersionedPackage, PackageInfoFlags) 不存在，跳过 Hook")
+                }
+            } catch (e: ClassNotFoundException) {
+                Log.i("VersionedPackage 类不存在，跳过 PackageInfoFlags 重载 Hook")
+            }
+            try {
+                hookGetPackageInfo(
+                    lpparam,
+                    "android.app.ApplicationPackageManager",
+                    "getPackageInfoAsUser",
+                    arrayOf<Class<*>>(
+                        String::class.java,
+                        packageInfoFlagsClass,
+                        Int::class.javaPrimitiveType!!
+                    )
+                )
+            } catch (e: Throwable) {
+                Log.i("getPackageInfoAsUser(String, PackageInfoFlags, int) 不存在，尝试旧签名")
+                try {
+                    hookGetPackageInfo(
+                        lpparam,
+                        "android.app.ApplicationPackageManager",
+                        "getPackageInfoAsUser",
+                        arrayOf<Class<*>>(
+                            String::class.java,
+                            Int::class.javaPrimitiveType!!,
+                            Int::class.javaPrimitiveType!!
+                        )
+                    )
+                } catch (inner: Throwable) {
+                    Log.i("getPackageInfoAsUser(String, int, int) 不存在，跳过 Hook")
+                }
+            }
+        } else {
+            try {
+                hookGetPackageInfo(
+                    lpparam,
+                    "android.app.ApplicationPackageManager",
+                    "getPackageInfoAsUser",
+                    arrayOf<Class<*>>(
+                        String::class.java,
+                        Int::class.javaPrimitiveType!!,
+                        Int::class.javaPrimitiveType!!
+                    )
+                )
+            } catch (e: Throwable) {
+                Log.i("getPackageInfoAsUser(String, int, int) 不存在，跳过 Hook")
+            }
+        }
+
+        try {
+            hookGetPackageInfo(
+                lpparam,
+                "android.content.pm.IPackageManager\$Stub\$Proxy",
+                "getPackageInfo",
+                arrayOf<Class<*>>(
+                    String::class.java,
+                    Long::class.javaPrimitiveType!!,
+                    Int::class.javaPrimitiveType!!
+                )
+            )
+        } catch (e: Throwable) {
+            Log.i("IPackageManager.getPackageInfo(String, long, int) 不存在，跳过 Hook")
+        }
+        try {
+            val versionedClass = Class.forName("android.content.pm.VersionedPackage")
+            try {
+                hookGetPackageInfo(
+                    lpparam,
+                    "android.content.pm.IPackageManager\$Stub\$Proxy",
+                    "getPackageInfoVersioned",
+                    arrayOf<Class<*>>(
+                        versionedClass,
+                        Long::class.javaPrimitiveType!!,
+                        Int::class.javaPrimitiveType!!
+                    )
+                )
+            } catch (e: Throwable) {
+                Log.i("IPackageManager.getPackageInfoVersioned 不存在，跳过 Hook")
+            }
+        } catch (e: ClassNotFoundException) {
+            Log.i("VersionedPackage 类不存在，跳过 IPackageManager 版本重载 Hook")
         }
     }
 
@@ -74,6 +190,8 @@ class Hook : IXposedHookLoadPackage {
      */
     private fun hookGetPackageInfo(
         lpparam: LoadPackageParam,
+        targetClassName: String,
+        methodName: String,
         paramTypes: Array<Class<*>>
     ) {
         val methodHook = object : XC_MethodHook() {
@@ -105,9 +223,9 @@ class Hook : IXposedHookLoadPackage {
         }
 
         XposedHelpers.findAndHookMethod(
-            "android.app.ApplicationPackageManager",
+            targetClassName,
             lpparam.classLoader,
-            "getPackageInfo",
+            methodName,
             *paramTypes,
             methodHook
         )
