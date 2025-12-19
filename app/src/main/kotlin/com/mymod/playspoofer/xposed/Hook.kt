@@ -69,7 +69,7 @@ class Hook : IXposedHookLoadPackage {
         }
 
         val packageInfoFlagsClass = try {
-            Class.forName("android.content.pm.PackageManager$PackageInfoFlags")
+            Class.forName("android.content.pm.PackageManager\$PackageInfoFlags")
         } catch (e: ClassNotFoundException) {
             Log.i("PackageInfoFlags 类不存在，跳过对应 Hook")
             null
