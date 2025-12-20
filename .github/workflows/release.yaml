@@ -5,6 +5,13 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release (e.g. v1.0.0)'
+        required: false
+      body:
+        description: 'Release notes'
+        required: false
 
 permissions:
   contents: write
@@ -16,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -33,13 +42,24 @@ jobs:
 
       - name: Rename APKs
         run: |
-          VERSION="${{ github.ref_name }}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.tag_name }}" ]]; then
+            VERSION="${{ inputs.tag_name }}"
+          elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION=$(git rev-parse --short HEAD)
+          fi
+          
+          echo "Using VERSION=$VERSION"
+          
           mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${VERSION}-release.apk"
           mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${VERSION}-debug.apk"
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
+          body: ${{ inputs.body }}
           files: |
             app/build/outputs/apk/release/PlayVersionSpoofer-*-release.apk
             app/build/outputs/apk/debug/PlayVersionSpoofer-*-debug.apk
