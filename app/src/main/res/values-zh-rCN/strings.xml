@@ -21,4 +21,8 @@
     <string name="step_1">1. 确保在Xposed框架中激活此模块</string>
     <string name="step_2">2. 确保模块作用域仅包含Google Play Store</string>
     <string name="step_3">3. 重启Google Play Store即可生效</string>
+    <string name="visit_project_homepage">访问项目主页</string>
+    <string name="verify_title">如何验证 (设置 > 关于)</string>
+    <string name="verify_old_version"><b>旧版本</b>：版本号应显示为 \"999.999.999\"。</string>
+    <string name="verify_new_version"><b>Play Store v47+</b>：显示的版本号可能不会变化。请点击 \"更新 Play 商店\"。如果提示 \"Google Play 商店已是最新版本\"，则说明模块工作正常。</string>
 </resources>
