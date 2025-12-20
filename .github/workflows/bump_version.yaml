@@ -1,0 +1,113 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: 'Version part to bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Version
+        id: bump_version
+        shell: python
+        run: |
+          import re
+          import os
+          import sys
+
+          file_path = 'gradle/libs.versions.toml'
+          part = '${{ inputs.part }}'
+
+          with open(file_path, 'r') as f:
+              content = f.read()
+
+          # Find versions
+          name_match = re.search(r'app-versionName\s*=\s*"([^"]+)"', content)
+          code_match = re.search(r'app-versionCode\s*=\s*"([^"]+)"', content)
+
+          if not name_match or not code_match:
+              print("::error::Could not find version info in libs.versions.toml")
+              sys.exit(1)
+
+          current_name = name_match.group(1)
+          current_code = int(code_match.group(1))
+
+          # Bump Code
+          new_code = current_code + 1
+
+          # Bump Name
+          parts = [int(x) for x in current_name.split('.')]
+          
+          # Normalize to at least 3 parts for semver logic if needed, 
+          # but user has "1.4", so let's handle 2 parts gracefully.
+          while len(parts) < 3:
+              parts.append(0)
+
+          if part == 'major':
+              parts[0] += 1
+              parts[1] = 0
+              parts[2] = 0
+          elif part == 'minor':
+              parts[1] += 1
+              parts[2] = 0
+          elif part == 'patch':
+              parts[2] += 1
+
+          # Format back. If original was 2 parts (1.4), we might want to keep it 2 parts if patch is 0?
+          # But usually patch bump implies 3 parts (1.4.1). 
+          # Let's output "X.Y" if patch is 0, else "X.Y.Z" to match user style "1.4"
+          if parts[2] == 0:
+              new_name = f"{parts[0]}.{parts[1]}"
+          else:
+              new_name = f"{parts[0]}.{parts[1]}.{parts[2]}"
+
+          print(f"Bumping version: {current_name} -> {new_name}")
+          print(f"Bumping code: {current_code} -> {new_code}")
+
+          # Replace in content
+          new_content = content.replace(f'app-versionName = "{current_name}"', f'app-versionName = "{new_name}"')
+          new_content = new_content.replace(f'app-versionCode = "{current_code}"', f'app-versionCode = "{new_code}"')
+
+          with open(file_path, 'w') as f:
+              f.write(new_content)
+          
+          # Set output
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"new_tag=v{new_name}\n")
+
+      - name: Commit and Push
+        run: |
+          NEW_TAG=${{ steps.bump_version.outputs.new_tag }}
+          git add gradle/libs.versions.toml
+          git commit -m "chore: bump version to $NEW_TAG"
+          git tag $NEW_TAG
+          git push origin main
+          git push origin $NEW_TAG
