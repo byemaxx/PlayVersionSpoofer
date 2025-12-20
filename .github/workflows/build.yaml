@@ -32,14 +32,20 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug assembleRelease
 
+      - name: Rename APKs
+        run: |
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${SHA_SHORT}-release.apk"
+          mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${SHA_SHORT}-debug.apk"
+
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: PlayVersionSpoofer-release
-          path: app/build/outputs/apk/release/app-release.apk
+          path: app/build/outputs/apk/release/PlayVersionSpoofer-*-release.apk
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: PlayVersionSpoofer-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/PlayVersionSpoofer-*-debug.apk
