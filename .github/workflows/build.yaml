@@ -1,11 +1,11 @@
-name: Building Release
+name: Build Android
 
 on:
   workflow_dispatch:
     inputs:
       ref:
         description: "Branch / tag / commit SHA to build"
-        required: true
+        required: false
         default: "main"
 
 jobs:
@@ -27,13 +27,19 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build
+      - name: Build APKs
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug assembleRelease
 
-      - name: Upload APK artifact
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: PlayVersionSpoofer-${{ inputs.ref }}-apk
+          name: PlayVersionSpoofer-release
           path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PlayVersionSpoofer-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
