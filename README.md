@@ -17,7 +17,9 @@ This prevents the Google Play Store from automatically updating itself.
 2. Tap the profile icon in the top-right corner
 3. Select "Settings" from the menu
 4. Scroll down to find the "About" section
-5. Verify that the version code and name match the spoofed values
+5. Verify the status:
+   - **On older versions**: The version name should display as "999.999.999".
+   - **On Play Store v47+**: The displayed version may NOT change. Click **"Update Play Store"**. If it says "**Google Play Store is up to date**", the module is working correctly.
 
 <p align="center">
   <img src="imgs/img1.jpg" width="45%" alt="Google Play Settings" />
