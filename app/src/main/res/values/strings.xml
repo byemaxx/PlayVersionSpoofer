@@ -21,4 +21,8 @@
     <string name="step_1">1. Ensure this module is activated in Xposed framework</string>
     <string name="step_2">2. Ensure module scope only includes Google Play Store</string>
     <string name="step_3">3. Restart Google Play Store to take effect</string>
+    <string name="visit_project_homepage">Visit Project Homepage</string>
+    <string name="verify_title">How to Verify (Settings > About)</string>
+    <string name="verify_old_version"><b>On older versions</b>: Version name should be \"999.999.999\".</string>
+    <string name="verify_new_version"><b>On Play Store v47+</b>: Displayed version may NOT change. Click \"Update Play Store\". If it says \"Google Play Store is up to date\", it is working.</string>
 </resources>
