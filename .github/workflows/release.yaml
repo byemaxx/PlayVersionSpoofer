@@ -1,0 +1,48 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APKs
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug assembleRelease
+
+      - name: Rename APKs
+        run: |
+          VERSION="${{ github.ref_name }}"
+          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${VERSION}-release.apk"
+          mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${VERSION}-debug.apk"
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/outputs/apk/release/PlayVersionSpoofer-*-release.apk
+            app/build/outputs/apk/debug/PlayVersionSpoofer-*-debug.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
