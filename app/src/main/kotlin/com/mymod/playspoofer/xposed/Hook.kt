@@ -168,7 +168,7 @@ class Hook : IXposedHookLoadPackage {
                 for (item in resultList) {
                     if (item is PackageInfo && item.packageName == PLAY_STORE_PKG) {
                         if (BuildConfig.DEBUG) {
-                            Log.i("Found Play Store in $methodName result list!")
+                            Log.i("[${lpparam.processName}] Found Play Store in $methodName list: ver=${item.versionName} (${item.longVersionCode})")
                         }
                         if (!hasHookedPlayStore) {
                             logVersion("原始版本 (List)", item)
@@ -230,7 +230,7 @@ class Hook : IXposedHookLoadPackage {
                 // 拿到原始 PackageInfo 对象
                 (param.result as? PackageInfo)?.let { pkgInfo ->
                     if (BuildConfig.DEBUG) {
-                        Log.i("Intercepted Play Store package info in $methodName")
+                        Log.i("[${lpparam.processName}] Intercepted $pkgName info in $methodName: ver=${pkgInfo.versionName} (${pkgInfo.longVersionCode})")
                     }
                     if (!hasHookedPlayStore) {
                         // 第一次进入这里：打印原始版本→伪装版本日志，并设置标志

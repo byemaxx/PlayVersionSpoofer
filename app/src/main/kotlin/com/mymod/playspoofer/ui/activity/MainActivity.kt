@@ -1,5 +1,7 @@
 package com.mymod.playspoofer.ui.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,11 +40,16 @@ fun MainScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(16.dp)
     ) {
-        // 标题卡片
-        Card(
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            // 标题卡片
+            Card(
             modifier = Modifier
                 .fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -126,7 +133,44 @@ fun MainScreen() {
                     text = stringResource(R.string.step_3),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 验证说明
+                Text(
+                    text = stringResource(R.string.verify_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.verify_old_version),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(R.string.verify_new_version),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
+        }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val context = LocalContext.current
+        OutlinedButton(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/byemaxx/PlayVersionSpoofer"))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = stringResource(R.string.visit_project_homepage))
         }
     }
 }
