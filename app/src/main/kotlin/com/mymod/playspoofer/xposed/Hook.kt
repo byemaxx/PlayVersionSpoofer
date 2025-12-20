@@ -31,7 +31,9 @@ class Hook : IXposedHookLoadPackage {
                     object : XC_MethodHook() {
                         override fun beforeHookedMethod(param: MethodHookParam) {
                             param.result = true
-                            Log.i("Module activation status forced to true")
+                            if (BuildConfig.DEBUG) {
+                                Log.i("Module activation status forced to true")
+                            }
                         }
                     }
                 )
@@ -153,17 +155,13 @@ class Hook : IXposedHookLoadPackage {
         methodName: String,
         paramTypes: Array<Class<*>>
     ) {
-        if (BuildConfig.DEBUG) {
-            Log.i("Registering hook for: $methodName with ${paramTypes.size} args")
-        }
+
         
         val methodHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val resultList = param.result as? List<*> ?: return
                 
-                if (BuildConfig.DEBUG) {
-                    Log.i("Method $methodName returned list of size: ${resultList.size}")
-                }
+
 
                 // 遍历结果列表，寻找 Play Store
                 var found = false
@@ -214,9 +212,7 @@ class Hook : IXposedHookLoadPackage {
         methodName: String,
         paramTypes: Array<Class<*>>
     ) {
-        if (BuildConfig.DEBUG) {
-            Log.i("Registering hook for: $methodName with ${paramTypes.size} args")
-        }
+
 
         val methodHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -227,9 +223,7 @@ class Hook : IXposedHookLoadPackage {
                     else -> XposedHelpers.callMethod(pkgArg, "getPackageName") as? String ?: return
                 }
                 
-                if (BuildConfig.DEBUG) {
-                    Log.i("Method $methodName called for package: $pkgName")
-                }
+
 
                 if (pkgName != PLAY_STORE_PKG) return
 
