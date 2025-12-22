@@ -1,17 +1,15 @@
-# PlaySpoofer
+# PlayVersionSpoofer
 [中文](README_zh.md) | [English](README.md)
 
-一个修改 Google Play 商店版本信息的 Xposed 模块。
+**彻底禁止 Google Play 商店自动更新**
 
-## 🚀 功能特性
+一个阻止 Google Play 商店进行**自我更新**的 Xposed 模块。
 
-本模块能够伪装 Google Play 商店的版本信息：
-- **版本号**: 99999999
-- **版本名**: "999.999.999"
+## 🚀 工作原理
 
-从而阻止 Google Play 商店自动更新。
+通过将Play 商店的版本号伪装成极高的 `99999999` (版本名 `999.999.999`)，让其误以为**当前已安装最新的版本**。
 
-## 🔍 如何验证 PlaySpoofer 是否正常工作
+## 🔍 如何验证 PlayVersionSpoofer 是否正常工作
 
 1. 打开 Google Play 商店
 2. 点击右上角的个人资料图标
