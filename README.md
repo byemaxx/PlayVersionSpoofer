@@ -1,17 +1,15 @@
-# PlaySpoofer
+# PlayVersionSpoofer
 [中文](README_zh.md) | [English](README.md)
 
-An Xposed module that modifies Google Play Store version information.
+**Permanently Stop Google Play Store Self-Updates.**
 
-## 🚀 Features
+An Xposed module that prevents the Google Play Store from automatically updating **itself**.
 
-This module spoofs the Google Play Store version information to:
-- **Version Code**: 99999999  
-- **Version Name**: "999.999.999"
+## 🚀 How it works
 
-This prevents the Google Play Store from automatically updating itself.
+By spoofing the version code to `99999999` and version name to `999.999.999`, it tricks the Play Store into believing **you already have the latest possible version**. Therefore, Play Store will never attempt to download or install a new update.
 
-## 🔍 How to Verify PlaySpoofer is Working
+## 🔍 How to Verify PlayVersionSpoofer is Working
 
 1. Open the Google Play Store
 2. Tap the profile icon in the top-right corner
@@ -45,3 +43,6 @@ This prevents the Google Play Store from automatically updating itself.
 ## ⚠️ Disclaimer
 
 Educational use only. Use at your own risk.
+
+**Please [Star](https://github.com/byemaxx/PlayVersionSpoofer) the project if you like this module!** 🌟
+Any contribution or suggestion is welcome.
