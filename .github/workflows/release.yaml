@@ -19,6 +19,11 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      PLAYSPOOFER_KEYSTORE_BASE64: ${{ secrets.PLAYSPOOFER_KEYSTORE_BASE64 }}
+      PLAYSPOOFER_KEY_ALIAS: ${{ secrets.PLAYSPOOFER_KEY_ALIAS }}
+      PLAYSPOOFER_STORE_PASSWORD: ${{ secrets.PLAYSPOOFER_STORE_PASSWORD }}
+      PLAYSPOOFER_KEY_PASSWORD: ${{ secrets.PLAYSPOOFER_KEY_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -34,6 +39,19 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Validate release signing secrets
+        run: |
+          for name in PLAYSPOOFER_KEYSTORE_BASE64 PLAYSPOOFER_KEY_ALIAS PLAYSPOOFER_STORE_PASSWORD PLAYSPOOFER_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required secret: $name"
+              exit 1
+            fi
+          done
+
+      - name: Decode release keystore
+        run: |
+          printf '%s' "$PLAYSPOOFER_KEYSTORE_BASE64" | base64 --decode > app/key.jks
 
       - name: Build APKs
         run: |
@@ -52,7 +70,11 @@ jobs:
           
           echo "Using VERSION=$VERSION"
           
-          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${VERSION}-release.apk"
+          RELEASE_APK=app/build/outputs/apk/release/app-release.apk
+          if [ ! -f "$RELEASE_APK" ]; then
+            RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          fi
+          mv "$RELEASE_APK" "app/build/outputs/apk/release/PlayVersionSpoofer-${VERSION}-release.apk"
           mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${VERSION}-debug.apk"
 
       - name: Create Release and Upload Assets

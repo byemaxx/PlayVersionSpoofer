@@ -11,6 +11,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PLAYSPOOFER_KEYSTORE_BASE64: ${{ secrets.PLAYSPOOFER_KEYSTORE_BASE64 }}
+      PLAYSPOOFER_KEY_ALIAS: ${{ secrets.PLAYSPOOFER_KEY_ALIAS }}
+      PLAYSPOOFER_STORE_PASSWORD: ${{ secrets.PLAYSPOOFER_STORE_PASSWORD }}
+      PLAYSPOOFER_KEY_PASSWORD: ${{ secrets.PLAYSPOOFER_KEY_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -27,6 +32,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Decode release keystore
+        if: ${{ env.PLAYSPOOFER_KEYSTORE_BASE64 != '' }}
+        run: |
+          printf '%s' "$PLAYSPOOFER_KEYSTORE_BASE64" | base64 --decode > app/key.jks
+
       - name: Build APKs
         run: |
           chmod +x ./gradlew
@@ -35,7 +45,11 @@ jobs:
       - name: Rename APKs
         run: |
           SHA_SHORT=$(git rev-parse --short HEAD)
-          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${SHA_SHORT}-release.apk"
+          RELEASE_APK=app/build/outputs/apk/release/app-release.apk
+          if [ ! -f "$RELEASE_APK" ]; then
+            RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          fi
+          mv "$RELEASE_APK" "app/build/outputs/apk/release/PlayVersionSpoofer-${SHA_SHORT}-release.apk"
           mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${SHA_SHORT}-debug.apk"
 
       - name: Upload Release APK
