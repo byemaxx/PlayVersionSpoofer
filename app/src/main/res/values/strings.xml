@@ -11,6 +11,7 @@
     <string name="controls_title">Controls</string>
     <string name="controls_description">Optional launcher visibility and the LSPosed note.</string>
     <string name="visit_project_homepage">Visit Project Homepage</string>
+    <string name="open_play_store_settings">Play Store Settings</string>
     <string name="project_homepage_short">Project Page</string>
     <string name="show_launcher_icon">Show launcher icon</string>
     <string name="show_launcher_icon_summary">Turn this off to hide the desktop entry. You can still open the module from Xposed or LSPosed settings.</string>
