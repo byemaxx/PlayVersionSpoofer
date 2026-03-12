@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">PlaySpoofer</string>
-    <string name="status_normal">Working normally</string>
-    <string name="status_partial">Partially working</string>
-    <string name="status_error">May not work</string>
-    <string name="status_entry_activation_y">Module activated</string>
-    <string name="status_entry_activation_n">Module not activated</string>
-    <string name="status_entry_activation_description">The module\'s activation status directly affects its functionality. If the module isn\'t activated, it won\'t work.</string>    <string name="log_title">Hook Logs</string>
-    <string name="log_clear">Clear Logs</string>
-    <string name="log_empty">No logs available</string>
-    
-    <!-- Main Screen -->
+
     <string name="app_title">PlayVersionSpoofer</string>
     <string name="app_tagline">Block Google Play Store from updating itself.</string>
     <string name="status_activated">✅ Activated</string>
@@ -23,8 +14,7 @@
     <string name="project_homepage_short">Project Page</string>
     <string name="show_launcher_icon">Show launcher icon</string>
     <string name="show_launcher_icon_summary">Turn this off to hide the desktop entry. You can still open the module from Xposed or LSPosed settings.</string>
-    <string name="launcher_icon_note_title">Icon still visible?</string>
-    <string name="launcher_icon_note_body">Disable `Force apps to show launcher icons` in LSPosed settings, or the launcher icon may still be forced to stay visible.</string>
+    <string name="launcher_icon_note_body">You may need to disable `Force apps to show launcher icons` in LSPosed settings.</string>
     <string name="details_title">Usage &amp; Verification</string>
     <string name="details_subtitle">Expand for the shortest setup and verification steps.</string>
     <string name="detail_activation">Enable the module in Xposed or LSPosed first.</string>
@@ -32,6 +22,7 @@
     <string name="detail_restart">Force stop and reopen Play Store after changes.</string>
     <string name="detail_verify_old">Older Play Store versions should show 999.999.999 directly.</string>
     <string name="detail_verify_new">On Play Store v47+, tap \"Update Play Store\". If it says the store is already up to date, the spoof is active.</string>
+    <string name="app_version">Version %1$s (%2$d)</string>
     <string name="expand_section">Expand</string>
     <string name="collapse_section">Collapse</string>
 </resources>
