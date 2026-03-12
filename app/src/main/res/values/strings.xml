@@ -12,17 +12,26 @@
     
     <!-- Main Screen -->
     <string name="app_title">PlayVersionSpoofer</string>
+    <string name="app_tagline">Block Google Play Store from updating itself.</string>
     <string name="status_activated">✅ Activated</string>
     <string name="status_not_activated">❌ Not Activated</string>
-    <string name="status_activated_desc">Module is properly activated and ready to use</string>
-    <string name="status_not_activated_desc">Please activate this module in Xposed framework</string>
-    <string name="usage_instructions">Usage Instructions</string>
-    <string name="usage_description">This module dynamically modifies Google Play Store version information to 999.999.999, preventing Play Store from updating itself.</string>
-    <string name="step_1">1. Ensure this module is activated in Xposed framework</string>
-    <string name="step_2">2. Ensure module scope only includes Google Play Store</string>
-    <string name="step_3">3. Restart Google Play Store to take effect</string>
+    <string name="status_activated_desc">The module is enabled and ready.</string>
+    <string name="status_not_activated_desc">Enable the module in Xposed or LSPosed first.</string>
+    <string name="controls_title">Controls</string>
+    <string name="controls_description">Optional launcher visibility and the LSPosed note.</string>
     <string name="visit_project_homepage">Visit Project Homepage</string>
-    <string name="verify_title">How to Verify (Settings > About)</string>
-    <string name="verify_old_version"><b>On older versions</b>: Version name should be \"999.999.999\".</string>
-    <string name="verify_new_version"><b>On Play Store v47+</b>: Displayed version may NOT change. Click \"Update Play Store\". If it says \"Google Play Store is up to date\", it is working.</string>
+    <string name="project_homepage_short">Project Page</string>
+    <string name="show_launcher_icon">Show launcher icon</string>
+    <string name="show_launcher_icon_summary">Turn this off to hide the desktop entry. You can still open the module from Xposed or LSPosed settings.</string>
+    <string name="launcher_icon_note_title">Icon still visible?</string>
+    <string name="launcher_icon_note_body">Disable `Force apps to show launcher icons` in LSPosed settings, or the launcher icon may still be forced to stay visible.</string>
+    <string name="details_title">Usage &amp; Verification</string>
+    <string name="details_subtitle">Expand for the shortest setup and verification steps.</string>
+    <string name="detail_activation">Enable the module in Xposed or LSPosed first.</string>
+    <string name="detail_scope">Keep the scope limited to Google Play Store only.</string>
+    <string name="detail_restart">Force stop and reopen Play Store after changes.</string>
+    <string name="detail_verify_old">Older Play Store versions should show 999.999.999 directly.</string>
+    <string name="detail_verify_new">On Play Store v47+, tap \"Update Play Store\". If it says the store is already up to date, the spoof is active.</string>
+    <string name="expand_section">Expand</string>
+    <string name="collapse_section">Collapse</string>
 </resources>

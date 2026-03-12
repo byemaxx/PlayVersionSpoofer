@@ -12,17 +12,26 @@
     
     <!-- Main Screen -->
     <string name="app_title">PlayVersionSpoofer</string>
+    <string name="app_tagline">阻止 Google Play Store 自行更新。</string>
     <string name="status_activated">✅ 已激活</string>
     <string name="status_not_activated">❌ 未激活</string>
-    <string name="status_activated_desc">模块已正常激活，可以开始使用</string>
-    <string name="status_not_activated_desc">请在Xposed框架中激活此模块</string>
-    <string name="usage_instructions">使用说明</string>
-    <string name="usage_description">本模块会动态修改Google Play Store的版本号信息为999.999.999，以阻止Play Store更新自身。</string>
-    <string name="step_1">1. 确保在Xposed框架中激活此模块</string>
-    <string name="step_2">2. 确保模块作用域仅包含Google Play Store</string>
-    <string name="step_3">3. 重启Google Play Store即可生效</string>
+    <string name="status_activated_desc">模块已启用，当前可以正常工作。</string>
+    <string name="status_not_activated_desc">请先在 Xposed 或 LSPosed 中启用模块。</string>
+    <string name="controls_title">控制选项</string>
+    <string name="controls_description">这里放桌面入口开关和 LSPosed 提示。</string>
     <string name="visit_project_homepage">访问项目主页</string>
-    <string name="verify_title">如何验证 (设置 > 关于)</string>
-    <string name="verify_old_version"><b>旧版本</b>：版本号应显示为 \"999.999.999\"。</string>
-    <string name="verify_new_version"><b>Play Store v47+</b>：显示的版本号可能不会变化。请点击 \"更新 Play 商店\"。如果提示 \"Google Play 商店已是最新版本\"，则说明模块工作正常。</string>
+    <string name="project_homepage_short">项目主页</string>
+    <string name="show_launcher_icon">显示桌面图标</string>
+    <string name="show_launcher_icon_summary">关闭后可隐藏桌面入口，仍可从 Xposed 或 LSPosed 模块设置页进入。</string>
+    <string name="launcher_icon_note_title">隐藏图标不生效？</string>
+    <string name="launcher_icon_note_body">请在 LSPosed 设置中关闭 `Force apps to show launcher icons`，否则系统可能仍然强制显示桌面图标。</string>
+    <string name="details_title">使用与验证</string>
+    <string name="details_subtitle">展开查看最关键的设置和验证方式。</string>
+    <string name="detail_activation">先在 Xposed 或 LSPosed 中启用模块。</string>
+    <string name="detail_scope">模块作用域只保留 Google Play Store。</string>
+    <string name="detail_restart">修改后强行停止并重新打开 Play Store。</string>
+    <string name="detail_verify_old">旧版 Play Store 会直接显示 999.999.999。</string>
+    <string name="detail_verify_new">Play Store v47 及以上可点击“更新 Play 商店”验证；如果提示已是最新版本，则说明生效。</string>
+    <string name="expand_section">展开</string>
+    <string name="collapse_section">收起</string>
 </resources>
