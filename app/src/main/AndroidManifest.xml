@@ -15,15 +15,36 @@
         <activity
             android:name="com.mymod.playspoofer.ui.activity.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
+            android:exported="false"
+            android:theme="@style/Theme.PlaySpoofer" />
+
+        <activity-alias
+            android:name=".ui.activity.MainActivityLauncher"
+            android:enabled="true"
             android:exported="true"
-            android:theme="@style/Theme.PlaySpoofer">
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:targetActivity="com.mymod.playspoofer.ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".ui.activity.MainActivityModuleSettings"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:targetActivity="com.mymod.playspoofer.ui.activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <meta-data
             android:name="xposedmodule"
