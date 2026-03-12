@@ -3,6 +3,7 @@ package com.mymod.playspoofer.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -72,6 +73,20 @@ fun MainScreen() {
     val isActivated = statusIsModuleActivated
     var showLauncherIcon by remember { mutableStateOf(LauncherIconManager.isVisible(context)) }
     var detailsExpanded by rememberSaveable { mutableStateOf(false) }
+    val openPlayStoreAppInfo = {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", "com.android.vending", null)
+        )
+        context.startActivity(intent)
+    }
+    val openProjectHomepage = {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://github.com/byemaxx/PlayVersionSpoofer")
+        )
+        context.startActivity(intent)
+    }
 
     Box(
         modifier = Modifier
@@ -97,13 +112,7 @@ fun MainScreen() {
         ) {
             HeroCard(
                 isActivated = isActivated,
-                onOpenProjectPage = {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/byemaxx/PlayVersionSpoofer")
-                    )
-                    context.startActivity(intent)
-                }
+                onOpenPlayStoreSettings = openPlayStoreAppInfo
             )
 
             ExpandableCard(
@@ -140,6 +149,14 @@ fun MainScreen() {
                 )
             }
 
+            Button(
+                onClick = openProjectHomepage,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Text(text = stringResource(R.string.project_homepage_short))
+            }
+
             Text(
                 text = stringResource(
                     R.string.app_version,
@@ -158,7 +175,7 @@ fun MainScreen() {
 @Composable
 private fun HeroCard(
     isActivated: Boolean,
-    onOpenProjectPage: () -> Unit,
+    onOpenPlayStoreSettings: () -> Unit,
 ) {
     val statusContainer = if (isActivated) Color(0xFFE7F8EC) else Color(0xFFFCE8E8)
     val statusTextColor = if (isActivated) Color(0xFF166534) else Color(0xFFB42318)
@@ -217,8 +234,8 @@ private fun HeroCard(
                 color = Color.White.copy(alpha = 0.74f)
             )
 
-            Button(onClick = onOpenProjectPage) {
-                Text(text = stringResource(R.string.project_homepage_short))
+            Button(onClick = onOpenPlayStoreSettings) {
+                Text(text = stringResource(R.string.open_play_store_settings))
             }
         }
     }

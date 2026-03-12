@@ -11,6 +11,7 @@
     <string name="controls_title">控制选项</string>
     <string name="controls_description">这里放桌面入口开关和 LSPosed 提示。</string>
     <string name="visit_project_homepage">访问项目主页</string>
+    <string name="open_play_store_settings">Play 商店设置</string>
     <string name="project_homepage_short">项目主页</string>
     <string name="show_launcher_icon">显示桌面图标</string>
     <string name="show_launcher_icon_summary">关闭后可隐藏桌面入口，仍可从 Xposed 或 LSPosed 模块设置页进入。</string>
