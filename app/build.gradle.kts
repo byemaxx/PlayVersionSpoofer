@@ -71,9 +71,7 @@ android {
         }
 
         debug {
-            if (hasManagedSigning) {
-                signingConfig = signingConfigs.getByName("config")
-            }
+            // Keep debug on the default debug keystore so CI release secrets only affect release builds.
         }
     }
 

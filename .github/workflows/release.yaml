@@ -53,6 +53,23 @@ jobs:
         run: |
           printf '%s' "$PLAYSPOOFER_KEYSTORE_BASE64" | base64 --decode > app/key.jks
 
+      - name: Validate release signing material
+        run: |
+          keytool -list \
+            -keystore app/key.jks \
+            -storepass "$PLAYSPOOFER_STORE_PASSWORD" \
+            -alias "$PLAYSPOOFER_KEY_ALIAS" > /dev/null
+
+          TMP_DIR=$(mktemp -d)
+          printf 'signing-check' > "$TMP_DIR/check.txt"
+          jar --create --file "$TMP_DIR/signing-check.jar" -C "$TMP_DIR" check.txt > /dev/null
+          jarsigner \
+            -keystore app/key.jks \
+            -storepass "$PLAYSPOOFER_STORE_PASSWORD" \
+            -keypass "$PLAYSPOOFER_KEY_PASSWORD" \
+            "$TMP_DIR/signing-check.jar" \
+            "$PLAYSPOOFER_KEY_ALIAS" > /dev/null
+
       - name: Build APKs
         run: |
           chmod +x ./gradlew
