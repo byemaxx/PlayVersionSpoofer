@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PlaySpoofer</string>
-    <string name="status_normal">正常工作中</string>
-    <string name="status_partial">部分功能可用</string>
-    <string name="status_error">可能无法工作</string>
-    <string name="status_entry_activation_y">模块已激活</string>
-    <string name="status_entry_activation_n">模块未激活</string>
-    <string name="status_entry_activation_description">模块的激活状态直接影响其功能。如果模块未被激活，它将完全无法运行。</string>    <string name="log_title">Hook 日志</string>
-    <string name="log_clear">清除日志</string>
-    <string name="log_empty">暂无日志</string>
-    
-    <!-- Main Screen -->
+
     <string name="app_title">PlayVersionSpoofer</string>
     <string name="app_tagline">阻止 Google Play Store 自行更新。</string>
     <string name="status_activated">✅ 已激活</string>
@@ -23,8 +14,7 @@
     <string name="project_homepage_short">项目主页</string>
     <string name="show_launcher_icon">显示桌面图标</string>
     <string name="show_launcher_icon_summary">关闭后可隐藏桌面入口，仍可从 Xposed 或 LSPosed 模块设置页进入。</string>
-    <string name="launcher_icon_note_title">隐藏图标不生效？</string>
-    <string name="launcher_icon_note_body">请在 LSPosed 设置中关闭 `Force apps to show launcher icons`，否则系统可能仍然强制显示桌面图标。</string>
+    <string name="launcher_icon_note_body">你可能需要在 LSPosed 设置中关闭 `Force apps to show launcher icons`。</string>
     <string name="details_title">使用与验证</string>
     <string name="details_subtitle">展开查看最关键的设置和验证方式。</string>
     <string name="detail_activation">先在 Xposed 或 LSPosed 中启用模块。</string>
@@ -32,6 +22,7 @@
     <string name="detail_restart">修改后强行停止并重新打开 Play Store。</string>
     <string name="detail_verify_old">旧版 Play Store 会直接显示 999.999.999。</string>
     <string name="detail_verify_new">Play Store v47 及以上可点击“更新 Play 商店”验证；如果提示已是最新版本，则说明生效。</string>
+    <string name="app_version">版本 %1$s (%2$d)</string>
     <string name="expand_section">展开</string>
     <string name="collapse_section">收起</string>
 </resources>

@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mymod.playspoofer.BuildConfig
 import com.mymod.playspoofer.R
 import com.mymod.playspoofer.ui.theme.PlaySpooferTheme
 import com.mymod.playspoofer.xposed.statusIsModuleActivated
@@ -135,10 +136,21 @@ fun MainScreen() {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 InfoNotice(
-                    title = stringResource(R.string.launcher_icon_note_title),
-                    body = stringResource(R.string.launcher_icon_note_body)
+                    text = stringResource(R.string.launcher_icon_note_body)
                 )
             }
+
+            Text(
+                text = stringResource(
+                    R.string.app_version,
+                    BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
         }
     }
 }
@@ -356,31 +368,20 @@ private fun PreferenceSwitchRow(
 
 @Composable
 private fun InfoNotice(
-    title: String,
-    body: String,
+    text: String,
 ) {
     Surface(
         shape = RoundedCornerShape(18.dp),
         color = Color(0xFFFFF6DB)
     ) {
-        Column(
+        Text(
+            text = text,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF8A5A00)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF6B4F18)
-            )
-        }
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color(0xFF6B4F18)
+        )
     }
 }
 
