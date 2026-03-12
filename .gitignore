@@ -9,3 +9,6 @@
 local.properties
 /.kotlin/
 .idea
+/keystore.properties
+*.jks
+*.keystore

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -12,6 +13,28 @@ kotlin {
     }
 }
 
+val localSigningProperties = Properties().apply {
+    val propertiesFile = rootProject.file("keystore.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use(::load)
+    }
+}
+
+fun signingValue(name: String): String? {
+    return providers.environmentVariable(name).orNull
+        ?: providers.gradleProperty(name).orNull
+        ?: localSigningProperties.getProperty(name)
+}
+
+val signingKeyStoreFile = file("key.jks")
+val signingKeyAlias = signingValue("PLAYSPOOFER_KEY_ALIAS")
+val signingStorePassword = signingValue("PLAYSPOOFER_STORE_PASSWORD")
+val signingKeyPassword = signingValue("PLAYSPOOFER_KEY_PASSWORD")
+val hasManagedSigning = signingKeyStoreFile.exists() &&
+    !signingKeyAlias.isNullOrBlank() &&
+    !signingStorePassword.isNullOrBlank() &&
+    !signingKeyPassword.isNullOrBlank()
+
 android {
     val appId = "com.mymod.playspoofer"
 
@@ -19,11 +42,13 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     signingConfigs {
-        create("config") {
-            storeFile = file("key.jks")
-            storePassword = "key123"
-            keyAlias = "key0"
-            keyPassword = "key123"
+        if (hasManagedSigning) {
+            create("config") {
+                storeFile = signingKeyStoreFile
+                storePassword = signingStorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+            }
         }
     }
 
@@ -40,11 +65,15 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("config")
+            if (hasManagedSigning) {
+                signingConfig = signingConfigs.getByName("config")
+            }
         }
 
         debug {
-            signingConfig = signingConfigs.getByName("config")
+            if (hasManagedSigning) {
+                signingConfig = signingConfigs.getByName("config")
+            }
         }
     }
 
