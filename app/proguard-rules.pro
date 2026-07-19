@@ -20,24 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Keep all Xposed related classes
--keep class com.mymod.playspoofer.xposed.** { *; }
-
-# Keep MainActivity and other Activities
--keep class com.mymod.playspoofer.ui.activity.MainActivity { *; }
-
-# Keep all classes with @Keep annotation
--keep class androidx.annotation.Keep
--keep @androidx.annotation.Keep class * { *; }
--keep @androidx.annotation.Keep interface * { *; }
--keepclassmembers class * {
-    @androidx.annotation.Keep *;
+# Xposed and the activation-status hook load these symbols by name.
+-keep class com.mymod.playspoofer.xposed.Hook { *; }
+-keep class com.mymod.playspoofer.xposed.ModuleStatusKt {
+    boolean isModuleActivated();
 }
-
-# Compose specific rules
--keep class androidx.compose.** { *; }
--keep class kotlin.Metadata { *; }
-
-# Keep coroutines
--keep class kotlinx.coroutines.** { *; }
--dontwarn kotlinx.coroutines.**

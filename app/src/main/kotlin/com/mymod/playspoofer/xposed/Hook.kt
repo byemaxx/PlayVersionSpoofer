@@ -11,10 +11,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 @Keep
 class Hook : IXposedHookLoadPackage {
     companion object {
-        private const val PLAY_STORE_PKG = "com.android.vending"
-        private const val MAX_VERSION_CODE = 99999999L
-        private const val MAX_VERSION_NAME = "999.999.999"
-
         /** 标记是否已经在第一次 Hook 成功时打印过日志 */
         @Volatile
         private var hasHookedPlayStore = false
@@ -45,7 +41,7 @@ class Hook : IXposedHookLoadPackage {
         }
 
         // 2. 只对 Google Play Store 生效
-        if (lpparam.packageName != PLAY_STORE_PKG) return
+        if (!SpoofPolicy.shouldSpoof(lpparam.packageName)) return
 
         // 只在第一次 Hook Play Store 时输出“开始 Hook [进程名]”日志
         if (!hasHookedPlayStore) {
@@ -166,7 +162,7 @@ class Hook : IXposedHookLoadPackage {
                 // 遍历结果列表，寻找 Play Store
                 var found = false
                 for (item in resultList) {
-                    if (item is PackageInfo && item.packageName == PLAY_STORE_PKG) {
+                    if (item is PackageInfo && SpoofPolicy.shouldSpoof(item.packageName)) {
                         if (BuildConfig.DEBUG) {
                             Log.i("[${lpparam.processName}] Found Play Store in $methodName list: ver=${item.versionName} (${item.longVersionCode})")
                         }
@@ -225,7 +221,7 @@ class Hook : IXposedHookLoadPackage {
                 
 
 
-                if (pkgName != PLAY_STORE_PKG) return
+                if (!SpoofPolicy.shouldSpoof(pkgName)) return
 
                 // 拿到原始 PackageInfo 对象
                 (param.result as? PackageInfo)?.let { pkgInfo ->
@@ -281,8 +277,8 @@ class Hook : IXposedHookLoadPackage {
      */
     private fun modifyPackageInfo(packageInfo: PackageInfo) {
         packageInfo.apply {
-            longVersionCode = MAX_VERSION_CODE
-            versionName = MAX_VERSION_NAME
+            longVersionCode = SpoofPolicy.VERSION_CODE
+            versionName = SpoofPolicy.VERSION_NAME
         }
     }
 }

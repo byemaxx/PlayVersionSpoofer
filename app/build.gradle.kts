@@ -77,15 +77,12 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    buildFeatures {
-        compose = true
     }
 
     packaging {
@@ -106,4 +103,5 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     compileOnly(libs.xposed.api)
+    testImplementation(libs.junit)
 }

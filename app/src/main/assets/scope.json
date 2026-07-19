@@ -1,6 +1,6 @@
 {
   "name": "PlaySpoofer",
-  "description": "修改Google Play商店的版本号信息以支持在新设备上安装应用 (仅支持Android 12L/SDK 32及以上)",
+  "description": "伪装 Google Play 商店自身的版本信息，阻止其自动更新。支持 Android 9 及以上版本。",
   "packages": [
     {
       "name": "com.android.vending",
