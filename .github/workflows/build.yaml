@@ -32,13 +32,35 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Determine signing availability
+        id: signing
+        shell: bash
+        run: |
+          present=0
+          for name in PLAYSPOOFER_KEYSTORE_BASE64 PLAYSPOOFER_KEY_ALIAS PLAYSPOOFER_STORE_PASSWORD PLAYSPOOFER_KEY_PASSWORD; do
+            if [ -n "${!name}" ]; then
+              present=$((present + 1))
+            fi
+          done
+
+          if [ "$present" -ne 0 ] && [ "$present" -ne 4 ]; then
+            echo "Release signing secrets must either all be configured or all be absent."
+            exit 1
+          fi
+
+          if [ "$present" -eq 4 ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Decode release keystore
-        if: ${{ env.PLAYSPOOFER_KEYSTORE_BASE64 != '' }}
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
         run: |
           printf '%s' "$PLAYSPOOFER_KEYSTORE_BASE64" | base64 --decode > app/key.jks
 
       - name: Validate managed signing material
-        if: ${{ env.PLAYSPOOFER_KEYSTORE_BASE64 != '' }}
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
         run: |
           keytool -list \
             -keystore app/key.jks \
@@ -55,22 +77,28 @@ jobs:
             "$TMP_DIR/signing-check.jar" \
             "$PLAYSPOOFER_KEY_ALIAS" > /dev/null
 
-      - name: Build APKs
+      - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug assembleRelease
+          ./gradlew assembleDebug
 
-      - name: Rename APKs
+      - name: Build signed Release APK
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
+        run: ./gradlew assembleRelease
+
+      - name: Rename Debug APK
         run: |
           SHA_SHORT=$(git rev-parse --short HEAD)
-          RELEASE_APK=app/build/outputs/apk/release/app-release.apk
-          if [ ! -f "$RELEASE_APK" ]; then
-            RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
-          fi
-          mv "$RELEASE_APK" "app/build/outputs/apk/release/PlayVersionSpoofer-${SHA_SHORT}-release.apk"
           mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/PlayVersionSpoofer-${SHA_SHORT}-debug.apk"
 
+      - name: Rename signed Release APK
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
+        run: |
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/PlayVersionSpoofer-${SHA_SHORT}-release.apk"
+
       - name: Upload Release APK
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: PlayVersionSpoofer-release

@@ -1,18 +1,12 @@
 package com.mymod.playspoofer.ui.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,19 +23,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,41 +44,58 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.mymod.playspoofer.BuildConfig
 import com.mymod.playspoofer.R
 import com.mymod.playspoofer.ui.theme.PlaySpooferTheme
+import com.mymod.playspoofer.xposed.SpoofPolicy
 import com.mymod.playspoofer.xposed.statusIsModuleActivated
 
 class MainActivity : ComponentActivity() {
+    private var playStoreVersionState by mutableStateOf<PlayStoreVersionState>(
+        PlayStoreVersionState.Unavailable
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        refreshPlayStoreVersion()
         setContent {
             PlaySpooferTheme {
-                MainScreen()
+                MainScreen(playStoreVersionState)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshPlayStoreVersion()
+    }
+
+    private fun refreshPlayStoreVersion() {
+        playStoreVersionState = PlayStoreVersionReader.read(this)
     }
 }
 
 @Composable
-fun MainScreen() {
+private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
     val context = LocalContext.current
     val isActivated = statusIsModuleActivated
     var showLauncherIcon by remember { mutableStateOf(LauncherIconManager.isVisible(context)) }
-    var detailsExpanded by rememberSaveable { mutableStateOf(false) }
     val openPlayStoreAppInfo = {
         val intent = Intent(
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", "com.android.vending", null)
+            "package:${SpoofPolicy.TARGET_PACKAGE}".toUri()
         )
         context.startActivity(intent)
     }
     val openProjectHomepage = {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://github.com/byemaxx/PlayVersionSpoofer")
+            "https://github.com/byemaxx/PlayVersionSpoofer".toUri()
         )
         context.startActivity(intent)
     }
@@ -94,8 +106,8 @@ fun MainScreen() {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF6F8F6),
-                        Color(0xFFE9F2ED),
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant,
                         MaterialTheme.colorScheme.background
                     )
                 )
@@ -110,72 +122,106 @@ fun MainScreen() {
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            HeroCard(
-                isActivated = isActivated,
-                onOpenPlayStoreSettings = openPlayStoreAppInfo
+            HeroCard(isActivated = isActivated)
+
+            PlayStoreVersionCard(
+                state = playStoreVersionState,
+                onOpenPlayStoreSettings = openPlayStoreAppInfo,
             )
 
-            ExpandableCard(
-                title = stringResource(R.string.details_title),
-                subtitle = stringResource(R.string.details_subtitle),
-                expanded = detailsExpanded,
-                onToggle = { detailsExpanded = !detailsExpanded }
-            ) {
-                BulletLine(text = stringResource(R.string.detail_activation))
-                BulletLine(text = stringResource(R.string.detail_scope))
-                BulletLine(text = stringResource(R.string.detail_restart))
-                BulletLine(text = stringResource(R.string.detail_verify_old))
-                BulletLine(text = stringResource(R.string.detail_verify_new))
-            }
+            VerificationCard()
 
-            SimpleCard(
-                title = stringResource(R.string.controls_title),
-                subtitle = stringResource(R.string.controls_description)
-            ) {
-                PreferenceSwitchRow(
-                    title = stringResource(R.string.show_launcher_icon),
-                    summary = stringResource(R.string.show_launcher_icon_summary),
-                    checked = showLauncherIcon,
-                    onCheckedChange = { checked ->
-                        showLauncherIcon = checked
-                        LauncherIconManager.setVisible(context, checked)
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                InfoNotice(
-                    text = stringResource(R.string.launcher_icon_note_body)
-                )
-            }
-
-            Button(
-                onClick = openProjectHomepage,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                Text(text = stringResource(R.string.project_homepage_short))
-            }
-
-            Text(
-                text = stringResource(
-                    R.string.app_version,
-                    BuildConfig.VERSION_NAME,
-                    BuildConfig.VERSION_CODE
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            PreferenceSwitchRow(
+                title = stringResource(R.string.show_launcher_icon),
+                summary = stringResource(R.string.show_launcher_icon_summary),
+                checked = showLauncherIcon,
+                onCheckedChange = { checked ->
+                    showLauncherIcon = checked
+                    LauncherIconManager.setVisible(context, checked)
+                }
             )
+
+            if (!showLauncherIcon) {
+                InfoNotice(text = stringResource(R.string.launcher_icon_note_body))
+            }
+
+            AppFooter(onOpenProjectHomepage = openProjectHomepage)
         }
     }
 }
 
 @Composable
+private fun PlayStoreVersionCard(
+    state: PlayStoreVersionState,
+    onOpenPlayStoreSettings: () -> Unit,
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(
+                text = stringResource(R.string.play_store_version_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.real_installed_version),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            when (state) {
+                is PlayStoreVersionState.Installed -> {
+                    Text(
+                        text = stringResource(
+                            R.string.version_value,
+                            state.versionName ?: stringResource(R.string.unknown_version),
+                            state.versionCode,
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                PlayStoreVersionState.NotInstalled -> VersionStatusText(
+                    text = stringResource(R.string.play_store_not_installed)
+                )
+
+                PlayStoreVersionState.Unavailable -> VersionStatusText(
+                    text = stringResource(R.string.play_store_version_unavailable)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onOpenPlayStoreSettings,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(R.string.open_play_store_settings))
+            }
+        }
+    }
+}
+
+@Composable
+private fun VersionStatusText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
 private fun HeroCard(
     isActivated: Boolean,
-    onOpenPlayStoreSettings: () -> Unit,
 ) {
     val statusContainer = if (isActivated) Color(0xFFE7F8EC) else Color(0xFFFCE8E8)
     val statusTextColor = if (isActivated) Color(0xFF166534) else Color(0xFFB42318)
@@ -191,9 +237,9 @@ private fun HeroCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(heroBrush, RoundedCornerShape(28.dp))
-            .padding(22.dp)
+            .padding(18.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Surface(
                 shape = RoundedCornerShape(999.dp),
                 color = statusContainer
@@ -213,7 +259,7 @@ private fun HeroCard(
 
             Text(
                 text = stringResource(R.string.app_title),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -223,30 +269,12 @@ private fun HeroCard(
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White.copy(alpha = 0.9f)
             )
-
-            Text(
-                text = if (isActivated) {
-                    stringResource(R.string.status_activated_desc)
-                } else {
-                    stringResource(R.string.status_not_activated_desc)
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.74f)
-            )
-
-            Button(onClick = onOpenPlayStoreSettings) {
-                Text(text = stringResource(R.string.open_play_store_settings))
-            }
         }
     }
 }
 
 @Composable
-private fun SimpleCard(
-    title: String,
-    subtitle: String,
-    content: @Composable () -> Unit,
-) {
+private fun VerificationCard() {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -257,89 +285,38 @@ private fun SimpleCard(
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(
-                text = title,
+                text = stringResource(R.string.details_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            content()
+            Spacer(modifier = Modifier.height(12.dp))
+            StepLine(number = 1, text = stringResource(R.string.detail_setup))
+            Spacer(modifier = Modifier.height(10.dp))
+            StepLine(number = 2, text = stringResource(R.string.detail_verify))
         }
     }
 }
 
 @Composable
-private fun ExpandableCard(
-    title: String,
-    subtitle: String,
-    expanded: Boolean,
-    onToggle: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+private fun AppFooter(onOpenProjectHomepage: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onToggle)
-                    .padding(18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Surface(
-                    shape = RoundedCornerShape(999.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    Text(
-                        text = if (expanded) {
-                            stringResource(R.string.collapse_section)
-                        } else {
-                            stringResource(R.string.expand_section)
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-
-            AnimatedVisibility(
-                visible = expanded,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
-                Column(
-                    modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 18.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    content()
-                }
-            }
+        Text(
+            text = stringResource(
+                R.string.app_version,
+                BuildConfig.VERSION_NAME,
+                BuildConfig.VERSION_CODE,
+            ),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TextButton(onClick = onOpenProjectHomepage) {
+            Text(text = stringResource(R.string.project_homepage_short))
         }
     }
 }
@@ -358,6 +335,11 @@ private fun PreferenceSwitchRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .toggleable(
+                    value = checked,
+                    role = Role.Switch,
+                    onValueChange = onCheckedChange,
+                )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -377,7 +359,7 @@ private fun PreferenceSwitchRow(
 
             Switch(
                 checked = checked,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = null
             )
         }
     }
@@ -389,7 +371,7 @@ private fun InfoNotice(
 ) {
     Surface(
         shape = RoundedCornerShape(18.dp),
-        color = Color(0xFFFFF6DB)
+        color = MaterialTheme.colorScheme.tertiaryContainer
     ) {
         Text(
             text = text,
@@ -397,23 +379,30 @@ private fun InfoNotice(
                 .fillMaxWidth()
                 .padding(horizontal = 14.dp, vertical = 10.dp),
             style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFF6B4F18)
+            color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
 }
 
 @Composable
-private fun BulletLine(text: String) {
+private fun StepLine(number: Int, text: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
         Box(
             modifier = Modifier
-                .padding(top = 7.dp)
-                .size(7.dp)
-                .background(Color(0xFF15803D), CircleShape)
-        )
+                .size(26.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = number.toString(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
         Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = text,
