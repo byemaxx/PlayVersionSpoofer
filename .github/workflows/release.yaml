@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name for release (e.g. v1.0.0)'
+        description: 'Tag name (e.g. v1.6); created from the selected ref if missing'
         required: true
       body:
-        description: 'Release notes'
+        description: 'Release notes in Markdown (leave blank to auto-generate)'
         required: false
 
 permissions:
@@ -30,9 +30,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref }}
 
-      - name: Validate release tag and configured version
+      - name: Validate release tag, commit, and configured version
         id: release
         shell: bash
         env:
@@ -49,7 +48,16 @@ jobs:
             exit 1
           fi
 
+          RELEASE_COMMIT=$(git rev-parse HEAD)
+          if TAG_COMMIT=$(git rev-parse -q --verify "refs/tags/$RELEASE_TAG^{commit}"); then
+            if [ "$TAG_COMMIT" != "$RELEASE_COMMIT" ]; then
+              echo "Release tag $RELEASE_TAG already points to $TAG_COMMIT, not $RELEASE_COMMIT."
+              exit 1
+            fi
+          fi
+
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "commit=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -106,10 +114,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ steps.release.outputs.commit }}
           body: ${{ inputs.body }}
           files: |
             app/build/outputs/apk/release/PlayVersionSpoofer-*-release.apk
             app/build/outputs/apk/debug/PlayVersionSpoofer-*-debug.apk
-          generate_release_notes: true
+          generate_release_notes: ${{ inputs.body == '' }}
           draft: false
           prerelease: false
