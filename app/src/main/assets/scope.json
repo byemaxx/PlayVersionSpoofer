@@ -1,6 +1,6 @@
 {
   "name": "PlaySpoofer",
-  "description": "伪装 Google Play 商店自身的版本信息，阻止其自动更新。支持 Android 9 及以上版本。",
+  "description": "Override the Google Play Store self-update decision. Supports Android 9 and newer.",
   "packages": [
     {
       "name": "com.android.vending",

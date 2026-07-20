@@ -20,7 +20,7 @@ class ModuleMetadataTest {
         val scope = sourceFile("assets/scope.json").readText()
 
         assertTrue(scope.contains(SpoofPolicy.TARGET_PACKAGE))
-        assertTrue(scope.contains("阻止其自动更新"))
+        assertTrue(scope.contains("self-update decision"))
         assertFalse(scope.contains("Android 12L"))
     }
 

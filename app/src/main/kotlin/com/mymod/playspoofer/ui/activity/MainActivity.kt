@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.mymod.playspoofer.BuildConfig
 import com.mymod.playspoofer.R
+import com.mymod.playspoofer.preferences.FallbackPreferences
 import com.mymod.playspoofer.ui.theme.PlaySpooferTheme
 import com.mymod.playspoofer.xposed.SpoofPolicy
 import com.mymod.playspoofer.xposed.statusIsModuleActivated
@@ -85,6 +86,9 @@ private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
     val context = LocalContext.current
     val isActivated = statusIsModuleActivated
     var showLauncherIcon by remember { mutableStateOf(LauncherIconManager.isVisible(context)) }
+    var legacyFallbackEnabled by remember {
+        mutableStateOf(FallbackPreferences.isLegacyPackageInfoFallbackEnabled(context))
+    }
     val openPlayStoreAppInfo = {
         val intent = Intent(
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -130,6 +134,20 @@ private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
             )
 
             VerificationCard()
+
+            PreferenceSwitchRow(
+                title = stringResource(R.string.legacy_fallback_title),
+                summary = stringResource(R.string.legacy_fallback_summary),
+                checked = legacyFallbackEnabled,
+                onCheckedChange = { checked ->
+                    legacyFallbackEnabled = checked
+                    FallbackPreferences.setLegacyPackageInfoFallbackEnabled(context, checked)
+                }
+            )
+
+            if (legacyFallbackEnabled) {
+                InfoNotice(text = stringResource(R.string.legacy_fallback_warning))
+            }
 
             PreferenceSwitchRow(
                 title = stringResource(R.string.show_launcher_icon),

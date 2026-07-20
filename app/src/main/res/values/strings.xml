@@ -10,6 +10,9 @@
     <string name="project_homepage_short">Project page</string>
     <string name="show_launcher_icon">Show launcher icon</string>
     <string name="show_launcher_icon_summary">Turn this off to hide the launcher entry. You can still open the module from Xposed or LSPosed settings.</string>
+    <string name="legacy_fallback_title">Legacy PackageInfo fallback</string>
+    <string name="legacy_fallback_summary">Use the previous global version spoof only when dynamic self-update detection does not work. Off by default.</string>
+    <string name="legacy_fallback_warning">This fallback can alter Play Store network metadata and may break the home feed on older versions. Force stop and reopen Play Store after changing it.</string>
     <string name="launcher_icon_note_body">If the icon remains visible, disable `Force apps to show launcher icons` in LSPosed settings.</string>
     <string name="play_store_version_title">Play Store version</string>
     <string name="real_installed_version">Installed version (real)</string>
@@ -19,6 +22,6 @@
     <string name="play_store_version_unavailable">Unable to read the installed Play Store version.</string>
     <string name="details_title">Verify the module</string>
     <string name="detail_setup">Enable the module, limit its scope to Google Play Store, then force stop and reopen Play Store.</string>
-    <string name="detail_verify">Older versions show 999.999.999 directly. On Play Store v47+, tap "Update Play Store" and confirm it reports that the store is up to date.</string>
+    <string name="detail_verify">Tap "Update Play Store" and confirm it reports that Google Play Store is up to date.</string>
     <string name="app_version">Version %1$s (%2$d)</string>
 </resources>

@@ -10,6 +10,9 @@
     <string name="project_homepage_short">项目主页</string>
     <string name="show_launcher_icon">显示桌面图标</string>
     <string name="show_launcher_icon_summary">关闭后可隐藏启动器入口，仍可从 Xposed 或 LSPosed 模块设置页进入。</string>
+    <string name="legacy_fallback_title">旧版 PackageInfo fallback</string>
+    <string name="legacy_fallback_summary">仅在动态自更新检测无效时使用原有的全局版本伪装，默认关闭。</string>
+    <string name="legacy_fallback_warning">此 fallback 会修改 Play 商店的网络元数据，可能导致旧版本首页异常。更改后请强行停止并重新打开 Play 商店。</string>
     <string name="launcher_icon_note_body">如果图标仍然显示，请在 LSPosed 设置中关闭 `Force apps to show launcher icons`。</string>
     <string name="play_store_version_title">Play 商店版本</string>
     <string name="real_installed_version">当前真实安装版本</string>
@@ -19,6 +22,6 @@
     <string name="play_store_version_unavailable">无法读取已安装的 Play 商店版本。</string>
     <string name="details_title">验证模块</string>
     <string name="detail_setup">启用模块并将作用域限制为 Google Play 商店，然后强行停止并重新打开 Play Store。</string>
-    <string name="detail_verify">旧版会直接显示 999.999.999；Play Store v47 及以上请点击“更新 Play 商店”，并确认其提示已是最新版本。</string>
+    <string name="detail_verify">点击“更新 Play 商店”，并确认其提示 Google Play 商店已是最新版本。</string>
     <string name="app_version">版本 %1$s (%2$d)</string>
 </resources>
