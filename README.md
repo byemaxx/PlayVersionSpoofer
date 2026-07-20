@@ -9,8 +9,6 @@ An Xposed module that prevents the Google Play Store from automatically updating
 
 - Makes the Play Store report that it is up to date
 - Prevents only Play Store self-updates and does not affect normal app updates
-- Keeps the real installed Play Store version visible by default
-- Includes an optional legacy compatibility fallback, disabled by default
 
 ## 🔍 How to Verify PlayVersionSpoofer is Working
 
