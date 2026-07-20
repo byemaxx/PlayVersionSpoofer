@@ -18,8 +18,8 @@
     <string name="close">Close</string>
     <string name="show_launcher_icon">Show launcher icon</string>
     <string name="show_launcher_icon_summary">Turn this off to hide the launcher entry. You can still open the module from Xposed or LSPosed settings.</string>
-    <string name="legacy_fallback_title">Legacy PackageInfo fallback</string>
-    <string name="legacy_fallback_summary">Use the previous global version spoof only when dynamic self-update detection does not work. Off by default.</string>
+    <string name="legacy_fallback_title">Global version spoof</string>
+    <string name="legacy_fallback_summary">Use the previous global version spoof only when self-update detection does not work. Off by default.</string>
     <string name="legacy_fallback_warning">This fallback can alter Play Store network metadata and may break the home feed on older versions. Force stop and reopen Play Store after changing it.</string>
     <string name="launcher_icon_note_body">If the icon remains visible, disable `Force apps to show launcher icons` in LSPosed settings.</string>
     <string name="play_store_version_title">Play Store version</string>
