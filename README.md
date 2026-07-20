@@ -5,13 +5,12 @@
 
 An Xposed module that prevents the Google Play Store from automatically updating **itself**.
 
-## 🚀 How it works
+## 🚀 Features
 
-The module dynamically locates the Play Store's self-update scheduling decision and returns **no update scheduled**. This makes the manual update check report that the store is up to date without changing its real `PackageInfo`, network User-Agent, or installed-package state.
-
-The resolved method descriptor is cached together with the installed Play Store `versionCode`. Normal launches restore the hook from this cache without starting DexKit; a new search only occurs after the Play Store version changes or the cache becomes invalid.
-
-The previous global `99999999` / `999.999.999` spoof remains available as a **Legacy PackageInfo fallback** in the module app. It is disabled by default because it can interfere with Play Store network requests, especially on older releases.
+- Makes the Play Store report that it is up to date
+- Prevents only Play Store self-updates and does not affect normal app updates
+- Keeps the real installed Play Store version visible by default
+- Includes an optional legacy compatibility fallback, disabled by default
 
 ## 🔍 How to Verify PlayVersionSpoofer is Working
 
@@ -27,7 +26,7 @@ The previous global `99999999` / `999.999.999` spoof remains available as a **Le
   <img src="imgs/img2.jpg" width="45%" alt="Version Information" />
 </p>
 
-> **📝 Note**: The default method keeps the Play Store's real version visible everywhere. If dynamic detection does not support a particular Play Store build, enable **Legacy PackageInfo fallback** in the module app, then force stop and reopen Play Store.
+> **📝 Note**: If the default mode does not work with a particular Play Store version, enable **Legacy PackageInfo fallback** in the module app, then force stop and reopen Play Store.
 
 ## 📋 Requirements
 

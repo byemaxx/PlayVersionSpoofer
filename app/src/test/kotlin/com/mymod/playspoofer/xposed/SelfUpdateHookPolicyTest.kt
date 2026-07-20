@@ -38,7 +38,8 @@ class SelfUpdateHookPolicyTest {
                 cachedSchemaVersion = DynamicHookCachePolicy.SCHEMA_VERSION,
                 cachedPlayStoreVersionCode = 84102830L,
                 installedPlayStoreVersionCode = 84102830L,
-                descriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                schedulerDescriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                autoUpdateScanComplete = true,
             )
         )
         assertFalse(
@@ -46,7 +47,8 @@ class SelfUpdateHookPolicyTest {
                 cachedSchemaVersion = DynamicHookCachePolicy.SCHEMA_VERSION,
                 cachedPlayStoreVersionCode = 84102830L,
                 installedPlayStoreVersionCode = 84102831L,
-                descriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                schedulerDescriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                autoUpdateScanComplete = true,
             )
         )
     }
@@ -58,7 +60,8 @@ class SelfUpdateHookPolicyTest {
                 cachedSchemaVersion = DynamicHookCachePolicy.SCHEMA_VERSION - 1,
                 cachedPlayStoreVersionCode = 84102830L,
                 installedPlayStoreVersionCode = 84102830L,
-                descriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                schedulerDescriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                autoUpdateScanComplete = true,
             )
         )
         assertFalse(
@@ -66,8 +69,34 @@ class SelfUpdateHookPolicyTest {
                 cachedSchemaVersion = DynamicHookCachePolicy.SCHEMA_VERSION,
                 cachedPlayStoreVersionCode = 84102830L,
                 installedPlayStoreVersionCode = 84102830L,
-                descriptor = " ",
+                schedulerDescriptor = " ",
+                autoUpdateScanComplete = true,
             )
         )
+        assertFalse(
+            DynamicHookCachePolicy.canUse(
+                cachedSchemaVersion = DynamicHookCachePolicy.SCHEMA_VERSION,
+                cachedPlayStoreVersionCode = 84102830L,
+                installedPlayStoreVersionCode = 84102830L,
+                schedulerDescriptor = "Ladfx;->g(Lader;Lkdp;Lkcc;Ljava/lang/Runnable;)Z",
+                autoUpdateScanComplete = false,
+            )
+        )
+    }
+
+    @Test
+    fun autoUpdateFilterOnlyRemovesPlayStore() {
+        val packages = listOf(
+            "com.example.one",
+            SpoofPolicy.TARGET_PACKAGE,
+            "com.example.two",
+        )
+
+        assertTrue(AutoUpdateHookPolicy.containsPlayStore(packages))
+        assertEquals(
+            listOf("com.example.one", "com.example.two"),
+            AutoUpdateHookPolicy.withoutPlayStore(packages),
+        )
+        assertFalse(AutoUpdateHookPolicy.containsPlayStore(listOf("com.example.one")))
     }
 }

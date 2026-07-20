@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -45,7 +50,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.mymod.playspoofer.BuildConfig
@@ -89,6 +97,8 @@ private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
     var legacyFallbackEnabled by remember {
         mutableStateOf(FallbackPreferences.isLegacyPackageInfoFallbackEnabled(context))
     }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
     val openPlayStoreAppInfo = {
         val intent = Intent(
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -126,6 +136,15 @@ private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            AppMenuBar(
+                expanded = showMoreMenu,
+                onExpandedChange = { showMoreMenu = it },
+                onOpenAbout = {
+                    showMoreMenu = false
+                    showAboutDialog = true
+                },
+            )
+
             HeroCard(isActivated = isActivated)
 
             PlayStoreVersionCard(
@@ -163,9 +182,113 @@ private fun MainScreen(playStoreVersionState: PlayStoreVersionState) {
                 InfoNotice(text = stringResource(R.string.launcher_icon_note_body))
             }
 
-            AppFooter(onOpenProjectHomepage = openProjectHomepage)
+            AppFooter()
+        }
+
+        if (showAboutDialog) {
+            AboutDialog(
+                onDismiss = { showAboutDialog = false },
+                onOpenProjectHomepage = openProjectHomepage,
+            )
         }
     }
+}
+
+@Composable
+private fun AppMenuBar(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onOpenAbout: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.app_name),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Box {
+            val menuDescription = stringResource(R.string.more_options)
+            IconButton(
+                onClick = { onExpandedChange(true) },
+                modifier = Modifier.semantics { contentDescription = menuDescription },
+            ) {
+                Text(
+                    text = "\u22ee",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { onExpandedChange(false) },
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.about_menu_item)) },
+                    onClick = onOpenAbout,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AboutDialog(
+    onDismiss: () -> Unit,
+    onOpenProjectHomepage: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.about_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(R.string.about_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.about_maintainer_prefix),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.about_maintainer_name),
+                        modifier = Modifier.clickable(onClick = onOpenProjectHomepage),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                    )
+                    Text(
+                        text = stringResource(R.string.about_maintainer_suffix),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                Text(
+                    text = stringResource(
+                        R.string.app_version,
+                        BuildConfig.VERSION_NAME,
+                        BuildConfig.VERSION_CODE,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onOpenProjectHomepage) {
+                Text(stringResource(R.string.project_homepage))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        },
+    )
 }
 
 @Composable
@@ -189,7 +312,7 @@ private fun PlayStoreVersionCard(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = stringResource(R.string.real_installed_version),
+                text = stringResource(R.string.installed_version),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -316,12 +439,12 @@ private fun VerificationCard() {
 }
 
 @Composable
-private fun AppFooter(onOpenProjectHomepage: () -> Unit) {
-    Row(
+private fun AppFooter() {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = stringResource(
@@ -329,13 +452,9 @@ private fun AppFooter(onOpenProjectHomepage: () -> Unit) {
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE,
             ),
-            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        TextButton(onClick = onOpenProjectHomepage) {
-            Text(text = stringResource(R.string.project_homepage_short))
-        }
     }
 }
 

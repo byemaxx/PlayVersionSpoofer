@@ -15,6 +15,7 @@ import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 import org.luckypray.dexkit.wrap.DexMethod
 import java.lang.reflect.Method
+import java.util.Set
 
 @Keep
 class Hook : IXposedHookLoadPackage {
@@ -25,6 +26,9 @@ class Hook : IXposedHookLoadPackage {
 
         @Volatile
         private var hasBlockedSelfUpdate = false
+
+        @Volatile
+        private var hasBlockedAutoUpdate = false
 
         @Volatile
         private var hasInitializedPlayStoreHooks = false
@@ -87,7 +91,7 @@ class Hook : IXposedHookLoadPackage {
         // The user-visible update check runs in the main Play Store process. Do not restore
         // the cached hook or scan the full APK in recovery and other child processes.
         if (lpparam.processName == SpoofPolicy.TARGET_PACKAGE) {
-            val decisionHookInstalled = hookSelfUpdateScheduler(lpparam, context)
+            val decisionHookInstalled = hookSelfUpdateTargets(lpparam, context)
             if (!decisionHookInstalled) {
                 Log.e(
                     "No unique Play Store self-update scheduler was found; " +
@@ -98,7 +102,7 @@ class Hook : IXposedHookLoadPackage {
             Log.i("Skipping the dynamic hook in child process: ${lpparam.processName}")
         }
 
-        if (HookPreferenceReader.isLegacyPackageInfoFallbackEnabled()) {
+        if (HookPreferenceReader.isLegacyPackageInfoFallbackEnabled(context)) {
             Log.i("Legacy PackageInfo fallback is enabled")
             hookLegacyPackageInfoFallback(lpparam)
         } else {
@@ -114,7 +118,7 @@ class Hook : IXposedHookLoadPackage {
      * and placeholders differ, so matching must use Contains. Returning false means that no
      * self-update was started or queued, which the settings UI reports as up to date.
      */
-    private fun hookSelfUpdateScheduler(
+    private fun hookSelfUpdateTargets(
         lpparam: LoadPackageParam,
         context: Context,
     ): Boolean {
@@ -129,19 +133,33 @@ class Hook : IXposedHookLoadPackage {
         val cache = DynamicHookCache(context)
 
         if (installedVersionCode != null) {
-            val cachedDescriptor = cache.readDescriptor(installedVersionCode)
-            if (cachedDescriptor != null) {
+            val cachedTargets = cache.readTargets(installedVersionCode)
+            if (cachedTargets != null) {
                 try {
-                    val method = DexMethod(cachedDescriptor)
+                    val schedulerMethod = DexMethod(cachedTargets.schedulerDescriptor)
                         .getMethodInstance(lpparam.classLoader)
-                    installSelfUpdateReplacement(method, cachedDescriptor, "cache")
+                    val autoUpdateMethod = cachedTargets.autoUpdateDescriptor?.let { descriptor ->
+                        DexMethod(descriptor).getMethodInstance(lpparam.classLoader)
+                    }
+                    installSelfUpdateReplacement(
+                        schedulerMethod,
+                        cachedTargets.schedulerDescriptor,
+                        "cache",
+                    )
+                    if (autoUpdateMethod != null) {
+                        installAutoUpdateFilter(
+                            autoUpdateMethod,
+                            checkNotNull(cachedTargets.autoUpdateDescriptor),
+                            "cache",
+                        )
+                    }
                     Log.i(
-                        "Restored self-update hook from cache: " +
+                        "Restored dynamic hooks from cache: " +
                             "versionCode=$installedVersionCode; DexKit was not loaded"
                     )
                     return true
                 } catch (e: Throwable) {
-                    Log.e("Cached self-update hook is invalid; running a new search", e)
+                    Log.e("Cached dynamic hooks are invalid; running a new search", e)
                     cache.clear()
                 }
             }
@@ -151,7 +169,7 @@ class Hook : IXposedHookLoadPackage {
             System.loadLibrary("dexkit")
 
             DexKitBridge.create(lpparam.appInfo.sourceDir).use { bridge ->
-                val candidates = bridge.findMethod {
+                val schedulerCandidates = bridge.findMethod {
                     matcher {
                         returnType = "boolean"
                         usingStrings(
@@ -161,19 +179,35 @@ class Hook : IXposedHookLoadPackage {
                     }
                 }
 
-                if (!SelfUpdateHookPolicy.hasUniqueCandidate(candidates.size)) {
+                if (!SelfUpdateHookPolicy.hasUniqueCandidate(schedulerCandidates.size)) {
                     Log.e(
-                        "Unexpected self-update scheduler candidate count: ${candidates.size}; " +
+                        "Unexpected self-update scheduler candidate count: ${schedulerCandidates.size}; " +
                             "expected exactly one"
                     )
                     return false
                 }
 
-                val target = candidates.single()
-                val method = target.getMethodInstance(lpparam.classLoader)
-                installSelfUpdateReplacement(method, target.descriptor, "DexKit")
+                val schedulerTarget = schedulerCandidates.single()
+                val schedulerMethod = schedulerTarget.getMethodInstance(lpparam.classLoader)
+                val autoUpdateMethod = findAutoUpdateScheduleMethod(bridge, lpparam.classLoader)
+                val autoUpdateDescriptor = autoUpdateMethod?.toDexDescriptor()
+
+                installSelfUpdateReplacement(
+                    schedulerMethod,
+                    schedulerTarget.descriptor,
+                    "DexKit",
+                )
+                if (autoUpdateMethod != null && autoUpdateDescriptor != null) {
+                    installAutoUpdateFilter(autoUpdateMethod, autoUpdateDescriptor, "DexKit")
+                }
                 if (installedVersionCode != null) {
-                    cache.writeDescriptor(installedVersionCode, target.descriptor)
+                    cache.writeTargets(
+                        installedVersionCode,
+                        DynamicHookTargets(
+                            schedulerDescriptor = schedulerTarget.descriptor,
+                            autoUpdateDescriptor = autoUpdateDescriptor,
+                        ),
+                    )
                 }
                 true
             }
@@ -201,6 +235,153 @@ class Hook : IXposedHookLoadPackage {
             }
         )
         Log.i("Hooked self-update scheduler via $source: $descriptor")
+    }
+
+    /**
+     * Finds the AutoUpdate v2 package-list entry point without depending on obfuscated names.
+     *
+     * The anchor is a method with a stable update-check log. Its declaring class has one void
+     * method whose second argument is an int and third argument is a package-name list. That
+     * method is the boundary used by both the settings debug trigger and self-update hygiene.
+     */
+    private fun findAutoUpdateScheduleMethod(
+        bridge: DexKitBridge,
+        classLoader: ClassLoader,
+    ): Method? {
+        val anchors = bridge.findMethod {
+            matcher {
+                usingStrings(
+                    listOf(AutoUpdateHookPolicy.ANCHOR_STRING),
+                    StringMatchType.Contains,
+                )
+            }
+        }
+        if (anchors.isEmpty()) {
+            Log.i("AutoUpdate v2 was not found in this Play Store version")
+            return null
+        }
+        if (anchors.size != 1) {
+            Log.e(
+                "Unexpected AutoUpdate v2 anchor count: ${anchors.size}; expected exactly one"
+            )
+            return null
+        }
+
+        val anchorClass = anchors.single()
+            .getMethodInstance(classLoader)
+            .declaringClass
+        val candidates = anchorClass.declaredMethods.filter { method ->
+            val parameters = method.parameterTypes
+            method.returnType == Void.TYPE &&
+                parameters.size == 4 &&
+                parameters[1] == Int::class.javaPrimitiveType &&
+                List::class.java.isAssignableFrom(parameters[2]) &&
+                hasSetCallback(parameters[0])
+        }
+        if (candidates.size != 1) {
+            Log.e(
+                "Unexpected AutoUpdate v2 scheduling method count: ${candidates.size}; " +
+                    "expected exactly one"
+            )
+            return null
+        }
+        return candidates.single()
+    }
+
+    private fun hasSetCallback(callbackType: Class<*>): Boolean {
+        return callbackType.methods.any { method ->
+            method.returnType == Void.TYPE &&
+                method.parameterTypes.size == 1 &&
+                Set::class.java.isAssignableFrom(method.parameterTypes[0])
+        }
+    }
+
+    private fun installAutoUpdateFilter(
+        method: Method,
+        descriptor: String,
+        source: String,
+    ) {
+        XposedBridge.hookMethod(
+            method,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val packages = param.args.getOrNull(2) as? List<*> ?: return
+                    if (!AutoUpdateHookPolicy.containsPlayStore(packages)) return
+
+                    val filteredPackages = AutoUpdateHookPolicy.withoutPlayStore(packages)
+                    if (filteredPackages.isNotEmpty()) {
+                        param.args[2] = filteredPackages
+                        logAutoUpdateBlockOnce(
+                            "Removed Play Store from a mixed AutoUpdate v2 request"
+                        )
+                        return
+                    }
+
+                    try {
+                        completeAutoUpdateCallback(param.args[0])
+                    } catch (e: Throwable) {
+                        Log.e(
+                            "Failed to complete the blocked AutoUpdate v2 callback; " +
+                                "the Play Store update remains blocked",
+                            e,
+                        )
+                    }
+                    param.result = null
+                    logAutoUpdateBlockOnce(
+                        "Blocked Play Store AutoUpdate v2 scheduling and returned up to date"
+                    )
+                }
+            }
+        )
+        Log.i("Hooked AutoUpdate v2 package filter via $source: $descriptor")
+    }
+
+    private fun completeAutoUpdateCallback(callback: Any?) {
+        requireNotNull(callback) { "AutoUpdate v2 callback is null" }
+        val candidates = callback.javaClass.methods
+            .filter { method ->
+                method.returnType == Void.TYPE &&
+                    method.parameterTypes.size == 1 &&
+                    Set::class.java.isAssignableFrom(method.parameterTypes[0])
+            }
+            .distinctBy { method ->
+                method.name + method.parameterTypes.joinToString { it.name }
+            }
+        check(candidates.size == 1) {
+            "Expected one AutoUpdate v2 Set callback, found ${candidates.size}"
+        }
+        candidates.single().invoke(callback, emptySet<String>())
+    }
+
+    private fun logAutoUpdateBlockOnce(message: String) {
+        if (!hasBlockedAutoUpdate) {
+            Log.i(message)
+            hasBlockedAutoUpdate = true
+        }
+    }
+
+    private fun Method.toDexDescriptor(): String {
+        val parameters = parameterTypes.joinToString(separator = "") { it.toDexType() }
+        return "${declaringClass.toDexType()}->$name($parameters)${returnType.toDexType()}"
+    }
+
+    private fun Class<*>.toDexType(): String {
+        return when (this) {
+            Void.TYPE -> "V"
+            Boolean::class.javaPrimitiveType -> "Z"
+            Byte::class.javaPrimitiveType -> "B"
+            Char::class.javaPrimitiveType -> "C"
+            Short::class.javaPrimitiveType -> "S"
+            Int::class.javaPrimitiveType -> "I"
+            Long::class.javaPrimitiveType -> "J"
+            Float::class.javaPrimitiveType -> "F"
+            Double::class.javaPrimitiveType -> "D"
+            else -> if (isArray) {
+                name.replace('.', '/')
+            } else {
+                "L${name.replace('.', '/')};"
+            }
+        }
     }
 
     /**

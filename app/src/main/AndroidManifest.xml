@@ -15,6 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlaySpoofer"
         android:windowSoftInputMode="adjustResize">
+        <provider
+            android:name="com.mymod.playspoofer.preferences.FallbackPreferenceProvider"
+            android:authorities="com.mymod.playspoofer.preferences"
+            android:exported="true"
+            android:grantUriPermissions="false" />
+
         <activity
             android:name="com.mymod.playspoofer.ui.activity.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
